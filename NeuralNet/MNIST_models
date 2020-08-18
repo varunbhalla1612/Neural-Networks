@@ -1,0 +1,9 @@
+Cases	Training Set Error	Epochs 
+Till <11% Threshold	Testing Set Error
+Case 1 Threshold = 11 %, Eta= 0.02, N=60000	10.9888	12	14.44
+Case 2 Threshold = 11 %, Eta= 0.05, N=60000	10.986	13	14.14%
+Case 3 Threshold = 11 %, Eta =1, N=60000	10.81	14	15.07%
+Case 4 Threshold = 11 %, Eta =5, N=60000	10.999996	14	11.7999%
+Case 5 Threshold = 11 %, Eta =10, N=60000	10.97	13	12.76%
+Case 6 Threshold = 11 %, Eta =20, N=60000	10.92	14	14.2%
+Case 7 Threshold = 11 %, Eta =50, N=60000	10.97	14	10.84%
