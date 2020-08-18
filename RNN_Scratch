@@ -1,0 +1,125 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May  8 15:52:04 2020
+
+@author: Varun
+"""
+##########importing libraries###################
+import os
+from os import listdir
+from os.path import isfile, join
+import struct
+import numpy as np
+import random
+import operator
+import matplotlib.pyplot as plt
+import gzip
+
+k=5
+listofz=[]
+listoft=[]
+for t in range(0,200):
+    zt = np.sin(np.cos(t/10) + (2*np.cos(t/5)))
+    listofz.append(zt)
+    listoft.append(t)
+
+plt.plot(listoft,listofz)
+
+#####use5window######
+def actfunc(y):
+    return(np.tanh(y))
+def derivativeactfunc(y):
+    return(1-(np.tanh(y)*np.tanh(y)))
+
+def ForwardProp(IP,W,U,OP):
+    X5=IP[4]
+    X4=IP[3]
+    X3=IP[2]
+    X2=IP[1]
+    X1=IP[0]
+    
+    S0=0
+    S1=np.tanh((W*X1)+(U*S0))
+    S2=np.tanh((W*X2)+(U*S1))
+    S3=np.tanh((W*X3)+(U*S2))
+    S4=np.tanh((W*X4)+(U*S3))
+    S5=np.tanh((W*X5)+(U*S4))
+    #S6=np.tanh((W*X5)+(U*S5))
+    #X6P=S5
+    AOP=OP
+    POP=S5
+    return(AOP,POP)
+    
+
+def BP(IP,W,U,OP,AOP):
+    lr=0.00005
+    X5=IP[4]
+    X4=IP[3]
+    X3=IP[2]
+    X2=IP[1]
+    X1=IP[0]
+    
+    S0=0
+    S1=np.tanh((W*X1)+(U*S0))
+    S2=np.tanh((W*X2)+(U*S1))
+    S3=np.tanh((W*X3)+(U*S2))
+    S4=np.tanh((W*X4)+(U*S3))
+    S5=np.tanh((W*X5)+(U*S4))
+    #S6=np.tanh((W*X5)+(U*S5))
+    #X6P=S5
+    AOP=OP
+    POP=S5
+    X6=OP
+    ######deltau#####################
+    S1D=derivativeactfunc(W*X1)
+    S2D=(derivativeactfunc((W*X2)+(U*S1)))*(S1+(U*S1D))
+    S3D=(derivativeactfunc((W*X3)+(U*S2)))*(S2+(U*S2D))
+    S4D=(derivativeactfunc((W*X4)+(U*S3)))*(S3+(U*S3D))
+    deltaEu= ((actfunc((W*X5)+(U*S4))) - X6)*derivativeactfunc((W*X5)+(U*S4))*derivativeactfunc((S4)+(U*S4D))
+    U=U-(lr*deltaEu)
+
+
+    D=derivativeactfunc(W*X1)
+    C=(derivativeactfunc((W*X2)+(U*S1)))*(X2+(U*D))
+    B=(derivativeactfunc((W*X3)+(U*S2)))*(X3+(U*C))
+    A=(derivativeactfunc((W*X4)+(U*S3)))*(X4+(U*B))
+    deltaEW=((actfunc((W*X5)+(U*S4)))-X6)*(derivativeactfunc((W*X5)+(U*S4)))*(X5+U*B)
+    
+    W=W-(lr*deltaEW)
+    return(U,W)
+    
+###initialisaton##########
+#W=np.mean(listofz)
+#U=np.mean(listofz)    
+############################
+W=round(random.uniform(-1,1),3)
+U=round(random.uniform(-1,1),3)
+W=0
+U=0
+#############################
+epoch=0
+bigMSE=[]
+for i in range(0,200):
+    MSE=[]
+    POPlist=[]
+    i=0
+    for i in range(0,(len(listofz)-6)):
+        IP=listofz[i:i+5]#x1,x2,x3,x4,x5
+        OP=listofz[i+5]#x6
+        AOP,POP=ForwardProp(IP,W,U,OP)
+        POPlist.append(POP)
+        MSE.append((((AOP-POP)**2)))
+        NewU,NewW=BP(IP,W,U,OP,AOP)
+        U=NewU
+        W=NewW
+    bigMSE.append(sum(MSE))
+
+list1=[i for i in range(0,200)]
+plt.plot(list1,bigMSE)
+
+plt.plot(listoft,listofz)
+plt.plot(listoft,[0,0,0,0,0,0]+POPlist)
+
+plt.plot(listoft[:-6],MSE)
+    
+    
